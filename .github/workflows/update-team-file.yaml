@@ -18,9 +18,9 @@ jobs:
         run: |
           echo "Extracting user ID and team name from issue body..."
           echo "${{ github.event.issue.body }}"
-          
-          TEAM_NAME=$(grep -A 1 "### project-name" ${{ github.event.issue.body }} | tail -n 1)
-          USER_ID=$(grep -A 1 "### user-id" ${{ github.event.issue.body }} | tail -n 1)
+          ISSUE_BODY="${{ github.event.issue.body }}"
+          TEAM_NAME=$(echo "$ISSUE_BODY" | grep -A 1 "### project-name" | tail -n 1)
+          USER_ID=$(echo "$ISSUE_BODY" | grep -A 1 "### user-id" | tail -n 1)
 
           echo "USER_ID"
           echo "TEAM_NAME"
