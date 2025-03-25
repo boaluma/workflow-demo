@@ -1,0 +1,36 @@
+name: Request IHS Workspace Access
+description: Request access to a Workspace in IHS 3.0
+labels:
+  - animal-jam
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Request IHS Workspace Access
+        Please fill out the following information to request team access.
+
+  - type: dropdown
+    id: project-name
+    attributes:
+      label: project-name
+      description: "Please enter the ihs-dev project you would create the issue for"
+      multiple: false
+      options:
+        - bull
+        - cat
+        - cow
+        - crow
+        - dog
+        - horse
+        - hyena
+        - tiger
+    validations:
+      required: true
+
+  - type: input
+    id: user-id
+    attributes:
+      label: user-id
+      description: "Please provide your user id"
+    validations:
+      required: true

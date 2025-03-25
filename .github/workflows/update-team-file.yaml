@@ -1,0 +1,60 @@
+name: Update Team File and Create PR
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  update-team-file:
+    if: ${{ github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'animal-jam') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      # - name: Login to TFY CLI
+      #   id: login-tfy
+      #   run: |
+      #     tfy login --host $TFY_CP_URL --api-key $TFY_DEV_API_KEY
+    
+      - name: Validate User ID
+        id: validate-user
+        run: |
+          echo "Validating user ID: $USER_ID"
+          
+          echo "(curl -s https://portal.ihs.ihs-dev.eks-dev.dht.live/api/svc/v1/users?query=$USER_ID&limit=25&offset=0&showInvalidUsers=true)"
+          
+        env:
+          USER_ID: ${{ github.event.inputs.user-id }}
+      
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update Teams File
+        id: update-teams
+        if: steps.validate-user.outcome == 'success'
+        run: |
+          echo "Updating teams file for team: $TEAM_NAME"
+          FILE_PATH="truefoundry/ihs-dev/teams/${TEAM_NAME}.yaml"
+          if [ ! -f "$FILE_PATH" ]; then
+            echo "Team file $FILE_PATH does not exist."
+            exit 1
+          fi
+          yq eval ".members += [\"$USER_ID\"] | .members |= unique" -i "$FILE_PATH"
+          echo "Updated team file: $FILE_PATH"
+        env:
+          TEAM_NAME: ${{ github.event.inputs.team-name }}
+          USER_ID: ${{ github.event.inputs.user-id }}
+      
+      
+      - name: Create Pull Request
+        if: steps.update-teams.outcome == 'success'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: update-team-file-${{ github.event.issue.number }}
+          commit-message: "Update team file for ${{ github.event.issue.number }}"
+          title: "Update team file for ${{ github.event.issue.number }}"
+          body: "This PR updates the team file based on the issue form submission."
+          labels: "automation"
+          base: main
