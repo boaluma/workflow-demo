@@ -22,8 +22,8 @@ jobs:
           TEAM_NAME=$(echo "$ISSUE_BODY" | grep -A 1 "### project-name" | tail -n 1)
           USER_ID=$(echo "$ISSUE_BODY" | grep -A 1 "### user-id" | tail -n 1)
 
-          echo "USER_ID"
-          echo "TEAM_NAME"
+          echo "USER_ID = $USER_ID"
+          echo "TEAM_NAME = $TEAM_NAME"
           echo "USER_ID=$USER_ID" >> $GITHUB_ENV
           echo "TEAM_NAME=$TEAM_NAME" >> $GITHUB_ENV
         shell: bash
