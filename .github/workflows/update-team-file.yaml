@@ -12,11 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # - name: Login to TFY CLI
-      #   id: login-tfy
-      #   run: |
-      #     tfy login --host $TFY_CP_URL --api-key $TFY_DEV_API_KEY
-    
       - name: Validate User ID
         id: validate-user
         run: |
@@ -35,7 +30,7 @@ jobs:
         if: steps.validate-user.outcome == 'success'
         run: |
           echo "Updating teams file for team: $TEAM_NAME"
-          FILE_PATH="truefoundry/ihs-dev/teams/${TEAM_NAME}.yaml"
+          FILE_PATH="test-folder/${TEAM_NAME}.yaml"
           if [ ! -f "$FILE_PATH" ]; then
             echo "Team file $FILE_PATH does not exist."
             exit 1
