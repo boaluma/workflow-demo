@@ -20,6 +20,8 @@ jobs:
           echo "${{ github.event.issue.body }}"
           TEAM_NAME=$(grep -A 1 "### project-name" ${{ github.event.issue.body }} | tail -n 1)
           USER_ID=$(grep -A 1 "### user-id" ${{ github.event.issue.body }} | tail -n 1)
+          echo "USER_ID = $USER_ID"
+          echo "TEAM_NAME = $TEAM_NAME"
           echo "USER_ID=$USER_ID" >> $GITHUB_ENV
           echo "TEAM_NAME=$TEAM_NAME" >> $GITHUB_ENV
         shell: bash
