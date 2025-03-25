@@ -12,15 +12,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: Extract UserID and  Team Names
+        id: extract-user-and-teams
+        run: |
+          echo "Extracting user ID from issue body..."
+          USER_ID=$(echo "${{ github.event.issue.body }}" | grep -oE 'user-id: [^ ]+' | cut -d' '-f2)
+          TEAM_NAME=$(echo "${{ github.event.issue.body }}" | grep -oE 'project-name: [^ ]+' | cut -d' '-f2)
+          echo "USER_ID=$USER_ID" >> $GITHUB_ENV
+          echo "TEAM_NAME=$TEAM_NAME" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Testing Env Values
+        id: test-env
+        run: |
+          echo "USER_ID = $USER_ID"
+          echo "TEAM_NAME = $TEAM_NAME"
+
       - name: Validate User ID
         id: validate-user
         run: |
           echo "Validating user ID: $USER_ID"
           
           echo "(curl -s https://portal.ihs.ihs-dev.eks-dev.dht.live/api/svc/v1/users?query=$USER_ID&limit=25&offset=0&showInvalidUsers=true)"
-          
-        env:
-          USER_ID: ${{ github.event.inputs.user-id }}
+        # env:
+        #   USER_ID: ${{ github.event.inputs.user-id }}
       
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,9 +53,9 @@ jobs:
           fi
           yq eval ".members += [\"$USER_ID\"] | .members |= unique" -i "$FILE_PATH"
           echo "Updated team file: $FILE_PATH"
-        env:
-          TEAM_NAME: ${{ github.event.inputs.project-name }}
-          USER_ID: ${{ github.event.inputs.user-id }}
+        # env:
+        #   TEAM_NAME: ${{ github.event.inputs.project-name }}
+        #   USER_ID: ${{ github.event.inputs.user-id }}
       
       
       - name: Create Pull Request
