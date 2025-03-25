@@ -8,7 +8,7 @@ on:
 
 jobs:
   update-team-file:
-    if: ${{ github.event_name == 'issues' && contains(join(',', github.event.issue.labels.*.name), 'animal-jam') }}
+    # if: ${{ github.event_name == 'issues' && contains(join(',', github.event.issue.labels.*.name), 'animal-jam') }}
     runs-on: ubuntu-latest
 
     steps:
