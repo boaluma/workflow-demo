@@ -1,4 +1,4 @@
-+ name: Update Team File and Create PR
+name: Update Team File and Create PR
 
 on:
   issues:
