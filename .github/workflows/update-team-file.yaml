@@ -13,26 +13,32 @@ jobs:
 
     steps:
 
-      - name: Extract User ID and Team Name
-        id: extract-user-id
-        run: |
-          echo "Extracting user ID and team name from issue body..."
-          echo "${{ github.event.issue.body }}"
-          ISSUE_BODY="${{ github.event.issue.body }}"
-          TEAM_NAME=$(echo "$ISSUE_BODY" | grep -A 1 "### project-name" | tail -n 1 | xargs)
-          USER_ID=$(echo "$ISSUE_BODY" | grep -A 1 "### user-id" | tail -n 1 | xargs)
+      - uses: stefanbuck/github-issue-parser@v3
+        id: issue-parser
+        with:
+          template-path: .github/ISSUE_TEMPLATE/teams_creation.yaml
 
-          echo "USER_ID = $USER_ID"
-          echo "TEAM_NAME = $TEAM_NAME"
-          echo "USER_ID=$USER_ID" >> $GITHUB_ENV
-          echo "TEAM_NAME=$TEAM_NAME" >> $GITHUB_ENV
-        shell: bash
+
+      # - name: Extract User ID and Team Name
+      #   id: extract-user-id
+      #   run: |
+      #     echo "Extracting user ID and team name from issue body..."
+      #     echo "${{ github.event.issue.body }}"
+      #     ISSUE_BODY="${{ github.event.issue.body }}"
+      #     TEAM_NAME=$(echo "$ISSUE_BODY" | grep -A 1 "### project-name" | tail -n 1 | xargs)
+      #     USER_ID=$(echo "$ISSUE_BODY" | grep -A 1 "### user-id" | tail -n 1 | xargs)
+
+      #     echo "USER_ID = $USER_ID"
+      #     echo "TEAM_NAME = $TEAM_NAME"
+      #     echo "USER_ID=$USER_ID" >> $GITHUB_ENV
+      #     echo "TEAM_NAME=$TEAM_NAME" >> $GITHUB_ENV
+      #   shell: bash
 
       - name: Testing Env Values
         id: test-env
         run: |
-          echo "USER_ID = $USER_ID"
-          echo "TEAM_NAME = $TEAM_NAME"
+          echo "USER_ID = ${{ steps.issue-parser.outputs.issueparser_user-id }}"
+          echo "TEAM_NAME = ${{ steps.issue-parser.outputs.issueparser_project-nanme }}"
 
       - name: Validate User ID
         id: validate-user
