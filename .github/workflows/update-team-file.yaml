@@ -38,7 +38,7 @@ jobs:
           yq eval ".members += [\"$USER_ID\"] | .members |= unique" -i "$FILE_PATH"
           echo "Updated team file: $FILE_PATH"
         env:
-          TEAM_NAME: ${{ github.event.inputs.team-name }}
+          TEAM_NAME: ${{ github.event.inputs.project-name }}
           USER_ID: ${{ github.event.inputs.user-id }}
       
       
