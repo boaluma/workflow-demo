@@ -13,12 +13,12 @@ jobs:
 
     steps:
 
-      - name: Extract UserID and  Team Names
-        id: extract-user-and-teams
+      - name: Extract User ID and Team Name
+        id: extract-user-id
         run: |
-          echo "Extracting user ID from issue body..."
-          USER_ID=$(echo "${{ github.event.issue.body }}" | grep -oE 'user-id: [^ ]+' | awk '{print $2}')
-          TEAM_NAME=$(echo "${{ github.event.issue.body }}" | grep -oE 'project-name: [^ ]+' | awk '{print $2}')
+          echo "Extracting user ID and team name from issue body..."
+          USER_ID=$(echo "${{ github.event.issue.body }}" | jq -r '. | capture("user-id: (?<id>\\S+)").id')
+          TEAM_NAME=$(echo "${{ github.event.issue.body }}" | jq -r '. | capture("project-name: (?<name>\\S+)").name')
           echo "USER_ID=$USER_ID" >> $GITHUB_ENV
           echo "TEAM_NAME=$TEAM_NAME" >> $GITHUB_ENV
         shell: bash
