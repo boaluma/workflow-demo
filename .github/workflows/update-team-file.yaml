@@ -81,7 +81,7 @@ jobs:
         # if: steps.update-teams.outcome == 'success'
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.MY_WORKFLOW_SECRET }}
           branch: update-team-file-${{ github.event.issue.number }}
           commit-message: "Update team file for ${{ github.event.issue.number }}"
           title: "Update team file for ${{ github.event.issue.number }}"
