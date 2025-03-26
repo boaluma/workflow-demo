@@ -16,7 +16,7 @@ jobs:
       - uses: stefanbuck/github-issue-parser@v3
         id: issue-parser
         with:
-          template-path: .github/ISSUE_TEMPLATE/teams_creation.yaml
+          template-path: ../.github/ISSUE_TEMPLATE/teams_creation.yaml
 
 
       # - name: Extract User ID and Team Name
