@@ -34,18 +34,18 @@ jobs:
       #     echo "TEAM_NAME=$TEAM_NAME" >> $GITHUB_ENV
       #   shell: bash
 
-      - name: Testing Env Values
-        id: test-env
-        run: |
-          echo "USER_ID = ${{ steps.issue-parser.outputs.issueparser_user-id }}"
-          echo "TEAM_NAME = ${{ steps.issue-parser.outputs.issueparser_project-nanme }}"
+      # - name: Testing Env Values
+      #   id: test-env
+      #   run: |
+      #     echo "USER_ID = ${{ steps.issue-parser.outputs.issueparser_user-id }}"
+      #     echo "TEAM_NAME = ${{ steps.issue-parser.outputs.issueparser_project-nanme }}"
 
-      - name: Validate User ID
-        id: validate-user
-        run: |
-          echo "Validating user ID: $USER_ID"
+      # - name: Validate User ID
+      #   id: validate-user
+      #   run: |
+      #     echo "Validating user ID: $USER_ID"
           
-          echo "(curl -s https://portal.ihs.ihs-dev.eks-dev.dht.live/api/svc/v1/users?query=$USER_ID&limit=25&offset=0&showInvalidUsers=true)"
+      #     echo "(curl -s https://portal.ihs.ihs-dev.eks-dev.dht.live/api/svc/v1/users?query=$USER_ID&limit=25&offset=0&showInvalidUsers=true)"
         # env:
         #   USER_ID: ${{ github.event.inputs.user-id }}
       
@@ -56,14 +56,18 @@ jobs:
         id: update-teams
         if: steps.validate-user.outcome == 'success'
         run: |
-          echo "Updating teams file for team: $TEAM_NAME"
-          FILE_PATH="test-folder/${TEAM_NAME}.yaml"
-          if [ ! -f "$FILE_PATH" ]; then
-            echo "Team file $FILE_PATH does not exist."
-            exit 1
-          fi
-          yq eval ".members += [\"$USER_ID\"] | .members |= unique" -i "$FILE_PATH"
-          echo "Updated team file: $FILE_PATH"
+          # echo "Updating teams file for team: $TEAM_NAME"
+          # FILE_PATH="test-folder/${TEAM_NAME}.yaml"
+          # if [ ! -f "$FILE_PATH" ]; then
+          #   echo "Team file $FILE_PATH does not exist."
+          #   exit 1
+          # fi
+          # yq eval ".members += [\"$USER_ID\"] | .members |= unique" -i "$FILE_PATH"
+          # echo "Updated team file: $FILE_PATH"
+          
+          echo "Testing PR"
+          touch test-folder/MyTestFile.txt
+
         # env:
         #   TEAM_NAME: ${{ github.event.inputs.project-name }}
         #   USER_ID: ${{ github.event.inputs.user-id }}
