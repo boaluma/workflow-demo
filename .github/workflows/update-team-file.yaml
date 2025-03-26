@@ -16,7 +16,7 @@ jobs:
       - uses: stefanbuck/github-issue-parser@v3
         id: issue-parser
         with:
-          template-path: ../.github/ISSUE_TEMPLATE/teams_creation.yaml
+          template-path: .github/ISSUE_TEMPLATE/teams_creation.yaml
 
 
       # - name: Extract User ID and Team Name
@@ -54,7 +54,7 @@ jobs:
 
       - name: Update Teams File
         id: update-teams
-        if: steps.validate-user.outcome == 'success'
+        # if: steps.validate-user.outcome == 'success'
         run: |
           # echo "Updating teams file for team: $TEAM_NAME"
           # FILE_PATH="test-folder/${TEAM_NAME}.yaml"
@@ -74,7 +74,7 @@ jobs:
       
       
       - name: Create Pull Request
-        if: steps.update-teams.outcome == 'success'
+        # if: steps.update-teams.outcome == 'success'
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
