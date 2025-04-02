@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   update-team-file:
-    # if: ${{ github.event_name == 'issues' && contains(join(',', github.event.issue.labels.*.name), 'animal-jam') }}
+    if: ${{ contains(toJSON(github.event.issue.labels), 'animal-jam') }}
     runs-on: ubuntu-latest
 
     steps:
@@ -81,7 +81,7 @@ jobs:
         # if: steps.update-teams.outcome == 'success'
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.MY_WORKFLOW_SECRET }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           branch: update-team-file-${{ github.event.issue.number }}
           commit-message: "Update team file for ${{ github.event.issue.number }}"
           title: "Update team file for ${{ github.event.issue.number }}"
