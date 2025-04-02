@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   update-team-file:
-    if: ${{ contains(toJSON(github.event.issue.labels), 'animal-jam') }}
+    if: ${{ contains(toJSON(github.event.issue.labels.*.name), 'animal-jam') }}
     runs-on: ubuntu-latest
 
     steps:
