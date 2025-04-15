@@ -1,0 +1,16 @@
+name: workflow-a2
+
+on:
+  repository_dispatch:
+    types: [trigger-workflow-a2]
+
+permissions:
+  contents: read
+
+jobs:
+  print-users:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print JSON from B
+        run: |
+          echo '${{ toJson(github.event.client_payload.users) }}'
