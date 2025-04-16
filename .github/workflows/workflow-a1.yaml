@@ -33,5 +33,5 @@ jobs:
           event-type: trigger-workflow-b1
           client-payload: |
             {
-              "source_repo": "'"${{ github.repository }}"'"
+              "source_repo": "${{ github.repository }}"
             }
