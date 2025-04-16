@@ -19,7 +19,7 @@ jobs:
           event-type: trigger-workflow-b1
           client-payload: |
             {
-              "repo_name": "${{ github.repository.name }}".
+              "repo_name": "${{ github.repository.name }}",
               "owner_name": "${{ github.repository_owner }}",
               "source_repo": "${{ github.repository }}"
             }
