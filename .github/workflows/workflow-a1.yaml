@@ -19,7 +19,7 @@ jobs:
           event-type: trigger-workflow-b1
           client-payload: |
             {
-              "repo_name": "ihs-mytok-excetra"
-              "owner_name": "${{ github.repository_owner }}"
+              "repo_name": "ihs-mytok-excetra",
+              "owner_name": "${{ github.repository_owner }}",
               "source_repo": "${{ github.repository }}"
             }
