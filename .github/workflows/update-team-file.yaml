@@ -31,6 +31,7 @@ jobs:
   update-teams-file:
     name: 'Setup TFY CLI DEV'
     if: contains(github.event.issue.labels.*.name, 'animal-jam') # Trigger only for issues with the specific label
+    runs-on: ubuntu-latest
     steps:
       - name: Git Clone the repository
         uses: actions/checkout@v3
