@@ -1,0 +1,25 @@
+name: workflow-a1
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write  # Required to use repository_dispatch
+
+jobs:
+  trigger-b1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger workflow-a2 in Repo A
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          repository: boaluma/test-api-workflow
+          event-type: trigger-workflow-b1
+          client-payload: |
+            {
+              "repo_name": "boaluma/workflow-demo-test",
+              "owner_name": "${{ github.repository_owner }}",
+              "source_repo": "${{ github.repository }}"
+            }
