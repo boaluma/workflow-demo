@@ -1,0 +1,39 @@
+name: Process Issue Form
+description: Processes fields in the request workspace access issue
+inputs:
+  template-path:
+    description: Path to the issue template
+    required: true
+outputs:
+  project-name:
+    value: ${{ steps.validate-issue.outputs.project-name }}
+    description: The name of the project to update
+  user-id:
+    value: ${{ steps.validate-issue.outputs.user-id }}
+    description: The user ID to validate
+ 
+runs:
+  using: composite
+  steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - uses: stefanbuck/github-issue-parser@v3
+      id: issue-parser
+      with:
+        template-path: ${{ inputs.template-path }}
+
+    - name: Ensure the inputs are correct
+      id: validate-issue
+      shell: bash
+      env:
+        ISSUE_BODY: ${{ steps.issue-parser.outputs.jsonString }}
+       
+      run: |
+        PROJECT_NAME=$(echo $ISSUE_BODY | jq -r '.project_name')
+        USER_ID=$(echo $ISSUE_BODY | jq -r '.user_id')
+        echo "PROJECT_NAME: $PROJECT_NAME"
+        echo "USER_ID: $USER_ID"
+        echo "project-name=$PROJECT_NAME" >> $GITHUB_OUTPUT
+        echo "user-id=$USER_ID" >> $GITHUB_OUTPUT

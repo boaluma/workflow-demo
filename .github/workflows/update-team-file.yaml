@@ -1,4 +1,4 @@
-name: Update Team File and Create PR
+name: Update Team File
 
 on:
   issues:
@@ -7,78 +7,75 @@ on:
     types: [created]
 
 permissions:
+  id-token: write
   contents: write
+  checks: write
   pull-requests: write
+  packages: write
+  issues: write
 
 jobs:
-  update-team-file:
-    if: ${{ containsgithub.event.issue.labels.*.name, 'animal-jam') }}
+  post-action-link:
+    name: Post Action Link
     runs-on: ubuntu-latest
-
     steps:
+      - name: Post Action Link
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          COMMENT_BODY="This issue has been processed. You can view the action [here](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}). Please wait for 5-7 mins to get the action completed"
+          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -X POST \
+            -d "{\"body\": \"$COMMENT_BODY\"}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER/comments"
 
-      - uses: stefanbuck/github-issue-parser@v3
-        id: issue-parser
+  update-teams-file:
+    name: 'Setup TFY CLI DEV'
+    if: contains(github.event.issue.labels.*.name, 'animal-jam') # Trigger only for issues with the specific label
+    steps:
+      - name: Git Clone the repository
+        uses: actions/checkout@v3
         with:
-          template-path: .github/ISSUE_TEMPLATE/teams_creation.yaml
-
-
-      # - name: Extract User ID and Team Name
-      #   id: extract-user-id
-      #   run: |
-      #     echo "Extracting user ID and team name from issue body..."
-      #     echo "${{ github.event.issue.body }}"
-      #     ISSUE_BODY="${{ github.event.issue.body }}"
-      #     TEAM_NAME=$(echo "$ISSUE_BODY" | grep -A 1 "### project-name" | tail -n 1 | xargs)
-      #     USER_ID=$(echo "$ISSUE_BODY" | grep -A 1 "### user-id" | tail -n 1 | xargs)
-
-      #     echo "USER_ID = $USER_ID"
-      #     echo "TEAM_NAME = $TEAM_NAME"
-      #     echo "USER_ID=$USER_ID" >> $GITHUB_ENV
-      #     echo "TEAM_NAME=$TEAM_NAME" >> $GITHUB_ENV
-      #   shell: bash
-
-      # - name: Testing Env Values
-      #   id: test-env
-      #   run: |
-      #     echo "USER_ID = ${{ steps.issue-parser.outputs.issueparser_user-id }}"
-      #     echo "TEAM_NAME = ${{ steps.issue-parser.outputs.issueparser_project-nanme }}"
-
-      # - name: Validate User ID
-      #   id: validate-user
-      #   run: |
-      #     echo "Validating user ID: $USER_ID"
+          fetch-depth: 0
           
-      #     echo "(curl -s https://portal.ihs.ihs-dev.eks-dev.dht.live/api/svc/v1/users?query=$USER_ID&limit=25&offset=0&showInvalidUsers=true)"
-        # env:
-        #   USER_ID: ${{ github.event.inputs.user-id }}
-      
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: 'pip'
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository -y ppa:rmescandon/yq
+          sudo apt-get update && sudo apt-get install -y yq
+
+      - name: Parse Issue
+        id: issue-parser
+        uses: ./.github/actions/process-team-request-form
+        with:
+          template-path: ./.github/ISSUE_TEMPLATE/teams_creation.yaml
 
       - name: Update Teams File
         id: update-teams
-        # if: steps.validate-user.outcome == 'success'
+        if: steps.issue-parser.outcome == 'success'
         run: |
-          # echo "Updating teams file for team: $TEAM_NAME"
-          # FILE_PATH="test-folder/${TEAM_NAME}.yaml"
-          # if [ ! -f "$FILE_PATH" ]; then
-          #   echo "Team file $FILE_PATH does not exist."
-          #   exit 1
-          # fi
-          # yq eval ".members += [\"$USER_ID\"] | .members |= unique" -i "$FILE_PATH"
-          # echo "Updated team file: $FILE_PATH"
-          
-          echo "Testing PR"
-          touch test-folder/MyTestFile.txt
+          echo "Updating teams file for team: $TEAM_NAME"
+          FILE_PATH="test-folder/${TEAM_NAME}.yaml"
+          if [ ! -f "$FILE_PATH" ]; then
+            echo " Project file $TEAM_NAME does not exist. "
+            exit 1
+          fi
+          yq eval ".members += [\"$EMAIL_ID\"] | .members |= unique" -i "$FILE_PATH"
+          echo " Updated project file: $TEAM_NAME "
+        env:
+          TEAM_NAME: ${{ steps.issue-parser.outputs.project-name }}
+          EMAIL_ID: ${{ steps.issue-parser.outputs.user-id }}
 
-        # env:
-        #   TEAM_NAME: ${{ github.event.inputs.project-name }}
-        #   USER_ID: ${{ github.event.inputs.user-id }}
-      
-      
       - name: Create Pull Request
-        # if: steps.update-teams.outcome == 'success'
+        id: create-pull-request
+        if: steps.update-teams.outcome == 'success'
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -88,3 +85,14 @@ jobs:
           body: "This PR updates the team file based on the issue form submission."
           labels: "automation"
           base: main
+
+      - name: Post PR Link
+        if: steps.create-pull-request.outcome == 'success'
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          PR_URL=${{ steps.create-pull-request.outputs.pull-request-url }}
+          COMMENT_BODY="A pull request has been created to update the team file. You can view it [here]($PR_URL). Please ensure to get the PR reviewed and approved by the ihs-admin team before merging."
+          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -X POST \
+            -d "{\"body\": \"$COMMENT_BODY\"}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER/comments"
